@@ -58,7 +58,7 @@ async function autoLoginAndLoad() {
             addGroupBtn.classList.remove('hidden');
           }
         } else {
-          // 密码如果失效（比如你在 CF 后台改了密码），就清理本地缓存
+          // 密码如果失效，就清理本地缓存
           localStorage.removeItem("admin_session");
         }
       } else {
@@ -127,14 +127,14 @@ function renderDOM() {
               </a>
               ${state.isAdmin ? `
                 <div class="flex space-x-2 opacity-0 group-hover/item:opacity-100 transition-opacity">
-                  <button onclick="editLink(${groupIdx}, ${linkIdx})" class="text-xs text-blue-500">改</button>
-                  <button onclick="deleteLink(${groupIdx}, ${linkIdx})" class="text-xs text-red-500">删</button>
+                  <button onclick="event.stopPropagation(); editLink(${groupIdx}, ${linkIdx})" class="text-xs text-blue-500">改</button>
+                  <button onclick="event.stopPropagation(); deleteLink(${groupIdx}, ${linkIdx})" class="text-xs text-red-500">删</button>
                 </div>
               ` : ''}
             </li>
           `).join('')}
         </ul>
-        ${state.isAdmin ? `<button onclick="addLink(${groupIdx})" class="w-full mt-3 py-1.5 border border-dashed border-gray-200 dark:border-gray-600 rounded-lg text-xs text-gray-400 hover:text-blue-500 transition-colors">+ 添加网址</button>` : ''}
+        ${state.isAdmin ? `<button onclick="event.stopPropagation(); addLink(${groupIdx})" class="w-full mt-3 py-1.5 border border-dashed border-gray-200 dark:border-gray-600 rounded-lg text-xs text-gray-400 hover:text-blue-500 transition-colors">+ 添加网址</button>` : ''}
       </div>
     `;
     container.appendChild(groupCard);
@@ -194,6 +194,16 @@ window.addLink = function(groupIdx) {
   saveToServer();
 };
 
+// 【新增】补充缺失的修改链接函数，防止报错崩溃
+window.editLink = function(groupIdx, linkIdx) {
+  const link = state.groups[groupIdx].links[linkIdx];
+  const title = prompt("修改网站名称：", link.title);
+  const url = prompt("修改网址：", link.url);
+  if (!title || !url) return;
+  state.groups[groupIdx].links[linkIdx] = { title, url };
+  saveToServer();
+};
+
 window.deleteLink = function(groupIdx, linkIdx) {
   if(confirm("确定删除？")) {
     state.groups[groupIdx].links.splice(linkIdx, 1);
@@ -241,4 +251,3 @@ async function saveToServer() {
     alert("网络连接失败，无法保存到云端：" + e.message);
   }
 }
-
