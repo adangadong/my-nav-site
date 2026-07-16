@@ -1,1 +1,12 @@
+name = "my-navigation-site"
+pages_build_output_dir = "./public"
 
+# 绑定 Cloudflare KV 数据库，用于存放网址 JSON 数据
+kv_namespaces = [
+  { binding = "NAV_DB", id = "xxxxxxxxxxxx" } 
+]
+
+# 环境变量：在这里配置你的管理密码和私密分组密码（上线后在 CF 后台配置更安全）
+[vars]
+ADMIN_PASSWORD_HASH = "通过SHA-256加密后的管理密码"
+PRIVATE_GROUP_PASSWORD_HASH = "通过SHA-256加密后的私密查看密码"
