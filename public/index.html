@@ -3,39 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的极简导航</title>
-    <!-- 引入 Tailwind CSS，让界面直接拥有高级感 -->
+    <title>Vincent的极简导航</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/style.css">
     <script>
-        // 护眼模式切换逻辑
+        // 配置 Tailwind 支持暗黑模式暗号
+        tailwind.config = { darkMode: 'class' }
         function toggleDarkMode() {
-            document.documentElement.classList.toggle('dark');
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.theme = isDark ? 'dark' : 'light';
         }
     </script>
 </head>
-<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+<body class="bg-gray-50 dark:bg-[#0B0F19] text-gray-800 dark:text-gray-200 min-h-screen transition-colors duration-300">
 
-    <div class="max-w-5xl mx-auto p-6">
-        <!-- 头部：标题与护眼模式按钮 -->
-        <header class="flex justify-between items-center mb-10">
-            <h1 class="text-2xl font-bold">我的常用网站</h1>
-            <button onclick="toggleDarkMode()" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-full">
-                切换模式
-            </button>
+    <div class="max-w-6xl mx-auto px-4 py-12">
+        <!-- 头部导航栏 -->
+        <header class="flex justify-between items-center mb-12 border-b border-gray-200/50 dark:border-gray-800/50 pb-6">
+            <div>
+                <h1 class="text-3xl font-bold tracking-tight bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400 bg-clip-text text-transparent">
+                    Dashboard
+                </h1>
+                <p class="text-xs text-gray-400 mt-1">极简 & 生产力工具箱</p>
+            </div>
+            
+            <div class="flex items-center space-x-3">
+                <!-- 隐藏的添加分组按钮，只有登录后显示 -->
+                <button id="add-group-btn" onclick="addGroup()" class="hidden px-3 py-1.5 text-xs bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                    + 新建分组
+                </button>
+                <button id="admin-btn" onclick="verifyAdmin()" class="px-3 py-1.5 text-xs border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                    管理后台
+                </button>
+                <button onclick="toggleDarkMode()" class="p-2 bg-gray-200 dark:bg-gray-800 rounded-lg text-sm">
+                    🌓 护眼
+                </button>
+            </div>
         </header>
 
-        <!-- 导航区：这里放你的网站卡片 -->
-        <main class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <!-- 示例卡片：未来我们会用代码动态生成 -->
-            <div class="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
-                <h2 class="font-bold mb-4 text-lg">工作常用</h2>
-                <ul class="space-y-2">
-                    <li><a href="https://github.com" class="text-blue-500 hover:underline">GitHub</a></li>
-                    <li><a href="https://cloudflare.com" class="text-blue-500 hover:underline">Cloudflare</a></li>
-                </ul>
-            </div>
+        <!-- 动态卡片容器（数据会注入到这里） -->
+        <main id="nav-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="text-center text-gray-400 col-span-full py-12">正在加载云端节点数据...</div>
         </main>
     </div>
 
+    <!-- 载入前端核心控制逻辑 -->
+    <script src="/app.js"></script>
 </body>
 </html>
