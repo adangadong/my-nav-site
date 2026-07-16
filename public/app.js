@@ -8,8 +8,8 @@ let state = {
 
 // 页面加载完成后立即执行
 document.addEventListener('DOMContentLoaded', () => {
-  loadData();
   initTheme();
+  autoLoginAndLoad(); // 替换原有的 loadData()，实现启动时自动免密登录并加载数据
 });
 
 // 从 Cloudflare 后端获取网址数据
@@ -24,6 +24,63 @@ async function loadData() {
     console.error("加载数据失败:", err);
   }
 }
+
+// 自动检测本地密码并加载数据
+async function autoLoginAndLoad() {
+  const sessionStr = localStorage.getItem("admin_session");
+  if (sessionStr) {
+    try {
+      const session = JSON.parse(sessionStr);
+      const now = new Date().getTime();
+      
+      // 如果本地存了密码，且没有超过 30 天过期时间
+      if (now < session.expiry && session.password) {
+        // 尝试静默向后台验证密码
+        const res = await fetch('/api/auth', {
+          method: 'POST',
+          body: JSON.stringify({ password: session.password, type: 'admin' })
+        });
+        const result = await res.json();
+
+        if (result.success) {
+          // 验证成功，静默开启管理员状态
+          state.isAdmin = true;
+          state.adminPassword = session.password;
+          
+          // 渲染管理员相关的按钮
+          const adminBtn = document.getElementById('admin-btn');
+          if (adminBtn) {
+            adminBtn.innerText = "退出管理";
+            adminBtn.onclick = () => logoutAdmin(); // 使用统一的登出函数
+          }
+          const addGroupBtn = document.getElementById('add-group-btn');
+          if (addGroupBtn) {
+            addGroupBtn.classList.remove('hidden');
+          }
+        } else {
+          // 密码如果失效（比如你在 CF 后台改了密码），就清理本地缓存
+          localStorage.removeItem("admin_session");
+        }
+      } else {
+        // 过期了，清理缓存
+        localStorage.removeItem("admin_session");
+      }
+    } catch (e) {
+      localStorage.removeItem("admin_session");
+    }
+  }
+  
+  // 无论自动登录成功与否，最后都去加载网址数据
+  await loadData();
+}
+
+// 统一的退出管理函数
+window.logoutAdmin = function() {
+  // 彻底清除本地 30 天免密存储
+  localStorage.removeItem("admin_session");
+  // 刷新页面
+  location.reload();
+};
 
 // 初始化护眼模式
 function initTheme() {
@@ -104,8 +161,16 @@ window.verifyAdmin = async function() {
   if (result.success) {
     state.isAdmin = true;
     state.adminPassword = pwd;
+    
+    // 登录成功，将密码写入 localStorage，设置 30 天后过期
+    const loginData = {
+      password: pwd,
+      expiry: new Date().getTime() + 30 * 24 * 60 * 60 * 1000 // 30天
+    };
+    localStorage.setItem("admin_session", JSON.stringify(loginData));
+
     document.getElementById('admin-btn').innerText = "退出管理";
-    document.getElementById('admin-btn').onclick = () => location.reload();
+    document.getElementById('admin-btn').onclick = () => logoutAdmin(); // 使用统一的登出函数
     document.getElementById('add-group-btn').classList.remove('hidden');
     renderDOM();
   } else {
