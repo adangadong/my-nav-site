@@ -1,1 +1,21 @@
+/* 微动效与高级感材质修饰 */
+.card-shadow {
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+}
+.dark .card-shadow {
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.3);
+}
 
+/* 丝滑的平滑折叠过渡 */
+.folder-content {
+  transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease;
+}
+
+/* 隐藏滚动条 */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
