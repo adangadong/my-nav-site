@@ -228,32 +228,36 @@ async function saveToServer() {
   renderDOM(); 
   
   try {
+    console.log("准备发送数据到后端...", state.groups);
     const res = await fetch('/api/save-links', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      // 直接打包发送标准的数组对象，方便后端过滤
       body: JSON.stringify({ 
         password: state.adminPassword, 
         data: { groups: state.groups } 
       })
     });
     
+    // 如果接口返回了 404 或者是其他非 200 状态
     if (!res.ok) {
       const errText = await res.text();
-      alert("保存失败，服务器拒绝了请求！错误原因: " + errText);
+      // 弹出致命错误提示，告诉我们是接口找不到(404)还是服务器崩溃(500)
+      alert(`【保存失败】服务器响应异常！\n状态码: ${res.status}\n响应内容: ${errText.substring(0, 100)}`);
       return;
     }
 
     const result = await res.json();
     if (!result.success) {
-      alert("同步到云端失败：" + (result.message || result.error || "未知原因"));
+      alert("【同步失败】后端返回错误：" + (result.message || result.error || "未知原因"));
     } else {
-      // 成功保存后在控制台打印一条日志
       console.log("数据同步成功！", state.groups);
+      // 可选：添加一个短暂的成功提示（可自行决定是否开启）
+      // alert("同步成功！");
     }
   } catch (e) {
-    alert("网络连接失败，无法保存到云端：" + e.message);
+    // 捕获彻底断网或解析失败的错误
+    alert("【网络致命错误】无法连接到保存接口，请检查后台路由设置！\n错误详情: " + e.message);
   }
 }
