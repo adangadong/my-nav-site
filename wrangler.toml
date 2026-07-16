@@ -1,5 +1,5 @@
 name = "my-navigation-site"
-pages_build_output_dir = "./public"
+pages_build_output_dir = "public"
 
 # 绑定 Cloudflare KV 数据库，用于存放网址 JSON 数据
 kv_namespaces = [
