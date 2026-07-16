@@ -3,7 +3,7 @@ pages_build_output_dir = "./public"
 
 # 绑定 Cloudflare KV 数据库，用于存放网址 JSON 数据
 kv_namespaces = [
-  { binding = "NAV_DB", id = "xxxxxxxxxxxx" } 
+  { binding = "NAV_DB", id = "b79b505999d544c98031bb6b904b520f" } 
 ]
 
 # 环境变量：在这里配置你的管理密码和私密分组密码（上线后在 CF 后台配置更安全）
