@@ -209,13 +209,36 @@ window.deleteGroup = function(groupIdx) {
 };
 
 async function saveToServer() {
-  if (!state.isAdmin) return;
+  if (!state.isAdmin) {
+    alert("保存失败：当前不是管理员状态！");
+    return;
+  }
   renderDOM(); // 立即渲染前端
   
-  const res = await fetch('/api/save-links', {
-    method: 'POST',
-    body: JSON.stringify({ password: state.adminPassword, data: { groups: state.groups } })
-  });
-  const result = await res.json();
-  if(!result.success) alert("同步失败：" + result.error);
+  try {
+    const res = await fetch('/api/save-links', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ password: state.adminPassword, data: { groups: state.groups } })
+    });
+    
+    // 如果网络请求本身不成功（比如 500、401 错误）
+    if (!res.ok) {
+      const errText = await res.text();
+      alert("保存失败，服务器拒绝了请求！错误信息: " + errText);
+      return;
+    }
+
+    const result = await res.json();
+    if (!result.success) {
+      alert("同步到云端失败：" + (result.message || result.error || "未知原因"));
+    } else {
+      console.log("数据同步成功！");
+    }
+  } catch (e) {
+    alert("网络连接失败，无法保存到云端：" + e.message);
+  }
 }
+
